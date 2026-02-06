@@ -1,4 +1,3 @@
-# video_face_recognition.py
 import torch
 import torchvision.transforms as transforms
 from facenet_pytorch import InceptionResnetV1, MTCNN
@@ -164,3 +163,6 @@ class VideoFaceRecognition():
         print(f"Saved video: {output_path}")
         
         return True
+
+
+
