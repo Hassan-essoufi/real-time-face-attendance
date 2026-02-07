@@ -1,14 +1,17 @@
+import os
+import cv2
+import csv
+import numpy as np
+from datetime import datetime
 import torch
+
 import torchvision.transforms as transforms
 from facenet_pytorch import InceptionResnetV1, MTCNN
-import cv2
-import numpy as np
-import os
 from sklearn.metrics.pairwise import cosine_similarity
 
 class VideoFaceRecognition():
     
-    def __init__(self, embeddings_db_path="embeddings.npy", threshold=0.5):
+    def __init__(self, embeddings_db_path="../embeddings.npy", threshold=0.5):
         
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.threshold = threshold
@@ -22,6 +25,8 @@ class VideoFaceRecognition():
             print(f"Embeddings : {len(self.embeddings_db)} persons")
         else:
             print("Embeddings base not found")
+        
+        self.attendance = {name: "Absent" for name in self.embeddings_db.keys()}
     
     def _load_models(self):
         """
@@ -141,6 +146,8 @@ class VideoFaceRecognition():
                         
                         if embedding is not None:
                             name, score = self._recognize_face(embedding)
+                            if name != "Unknown":
+                                self.attendance[name] = "Present"
                             color = (0, 255, 0) if name != "Unknown" else (0, 0, 255)
                             cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
                             label = f"{name} ({score:.2f})"
@@ -161,6 +168,14 @@ class VideoFaceRecognition():
         
         print(f"treatement: {frame_count} frames")
         print(f"Saved video: {output_path}")
+
+        time_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        with open("attendance.csv", "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(["Name", "Status", "Time"])
+            for name, status in self.attendance.items():
+                writer.writerow([name, status, time_now])
         
         return True
 
