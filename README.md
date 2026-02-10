@@ -87,11 +87,11 @@ This project is suitable for:
 * Smart classrooms
 * Access control
 ---
-
+<!--
 ## Author
 
 **Hassan Essoufi**
-
+-->
 ---
 
 ⭐ If this project helped you, consider starring the repo!
